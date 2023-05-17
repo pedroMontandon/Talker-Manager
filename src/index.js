@@ -15,6 +15,15 @@ app.use(express.json());
 const HTTP_OK_STATUS = 200;
 const PORT = process.env.PORT || '3001';
 
+app.get('/talker/search', verifyToken, async (req, res) => {
+  const { q } = req.query;
+  const talkers = await readFile();
+
+  const filteredTalkers = talkers.filter((talker) => talker
+    .name.toLowerCase().includes(q.toLowerCase()));
+    return res.status(200).json(filteredTalkers);
+});
+
 app.get('/talker', async (req, res) => {
   const talkers = await readFile();
   res.status(HTTP_OK_STATUS).json([...talkers]);

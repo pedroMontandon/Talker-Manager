@@ -7,3 +7,14 @@ const postNewTalker = (talkers, talker) => {
 module.exports = {
     postNewTalker,
 };
+
+  // const editedTalkers = talkers.reduce((acc, curr) => {
+  //   if (curr.id === Number(id)) {
+  //     acc.push(editedTalker);
+  //   } else {
+  //     acc.push(curr);
+  //   }
+  //   return acc;
+  // }, []);
+
+  // const editedTalkers = talkers.map((talker) => talker.id === Number(id) ? editedTalker : talker);
