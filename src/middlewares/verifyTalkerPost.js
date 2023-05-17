@@ -51,13 +51,13 @@ const verifyTalk = (req, res, next) => {
 };
 
 const verifyRateNumber = (req, res, next) => {
-  const { talk } = req.body;
-  if (Number(talk.rate) < 1 || Number(talk.rate) > 5) {
+  const { talk: { rate } } = req.body;
+  if (Number(rate) < 1 || Number(rate) > 5) {
     return res.status(400)
       .json({ message: 'O campo "rate" deve ser um número inteiro entre 1 e 5' });
   }
 
-  if (!Number.isInteger(talk.rate)) {
+  if (!Number.isInteger(rate)) {
     return res.status(400)
       .json({ message: 'O campo "rate" deve ser um número inteiro entre 1 e 5' });
   }
@@ -66,8 +66,8 @@ const verifyRateNumber = (req, res, next) => {
 };
 
 const verifyRate = (req, res, next) => {
-  const { talk } = req.body;
-  if (!talk.rate && talk.rate !== 0) { 
+  const { talk: { rate } } = req.body;
+  if (!rate && rate !== 0) { 
     return res.status(400).json({ message: 'O campo "rate" é obrigatório' });
   }
 

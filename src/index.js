@@ -10,22 +10,13 @@ const readFile = require('./helpers/readFile');
 const { postNewTalker } = require('./helpers/writeFile');
 const { filteringQ, filteringRate, filteringDate } = require('./helpers/filtering');
 const { verifyQueryRate, verifyQueryDate } = require('./middlewares/queryMiddlewares');
+const { verifyPatchRate, verifyPatchRateNumber } = require('./middlewares/patchMiddlewares');
 
 const app = express();
 app.use(express.json());
 
 const HTTP_OK_STATUS = 200;
 const PORT = process.env.PORT || '3001';
-
-// 8 funcionando perfeitamente
-// app.get('/talker/search', verifyToken, async (req, res) => {
-//   const { q } = req.query;
-//   const talkers = await readFile();
-
-//   const filteredTalkers = talkers.filter((talker) => talker
-//     .name.includes(q));
-//     return res.status(200).json(filteredTalkers);
-// });
 
 app.get('/talker/search', verifyToken, verifyQueryRate, verifyQueryDate, async (req, res) => {
   const { q, rate, date } = req.query;
@@ -34,7 +25,6 @@ app.get('/talker/search', verifyToken, verifyQueryRate, verifyQueryDate, async (
   const filteredQTalkers = filteringQ(q, talkers);
   const filteredRate = filteringRate(rate, filteredQTalkers);
   const filteredDate = filteringDate(date, filteredRate);
-  // return res.status(200).json(filteredRate);
   return res.status(200).json(filteredDate);
 });
 
@@ -101,6 +91,19 @@ app.delete('/talker/:id', verifyToken, async (req, res) => {
   fs.writeFile('./src/talker.json', JSON.stringify(filteredTalkers), 'utf-8');
 
   return res.status(204).end();
+});
+
+app.patch('/talker/rate/:id', verifyToken, verifyPatchRate,
+  verifyPatchRateNumber, async (req, res) => {
+    const { id } = req.params;
+    const { rate } = req.body;
+    const talkers = await readFile();
+
+    const talkerFound = talkers.find((talker) => talker.id === Number(id));
+    talkerFound.talk.rate = rate;
+    fs.writeFile('./src/talker.json', JSON.stringify(talkers), 'utf-8');
+
+    res.status(204).end();
 });
 
 app.post('/login', verifyEmail, verifyPassword, async (req, res) => {
