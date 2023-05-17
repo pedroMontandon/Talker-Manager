@@ -55,6 +55,41 @@ app.post('/talker', verifyToken, verifyName, verifyAge, verifyTalk, verifyRate, 
   })
 })
 
+app.put('/talker/:id', verifyToken, verifyName, verifyAge, verifyTalk, verifyRate, verifyRateNumber, async (req, res) => {
+  const { id } = req.params;
+  const talkers = await fs.readFile('./src/talker.json');
+  const talkersTreated = JSON.parse(talkers);
+
+  const editedTalker = {
+    id: Number(id),
+    name: req.body.name,
+    age: req.body.age,
+    talk: {
+      watchedAt: req.body.talk.watchedAt,
+      rate: req.body.talk.rate
+    }
+  };
+
+  const talkerFound = talkersTreated.find((talker) => talker.id === Number(id));
+
+  if (!talkerFound) {
+    return res.status(404).json({ message: 'Pessoa palestrante não encontrada' });
+  }
+  
+  const editedTalkers = talkersTreated.reduce((acc, curr) => {
+    if (curr.id === Number(id)) {
+      acc.push(editedTalker);
+    } else {
+      acc.push(curr);
+    }
+    return acc;
+  }, []);
+
+  fs.writeFile('./src/talker.json', JSON.stringify(editedTalkers), 'utf-8');
+
+  return res.status(HTTP_OK_STATUS).json(editedTalker);
+})
+
 app.post('/login', verifyEmail, verifyPassword, async (req, res) => {
   const token = generateToken(8);
 
