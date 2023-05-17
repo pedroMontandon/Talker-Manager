@@ -88,6 +88,19 @@ app.put('/talker/:id', verifyToken, verifyName, verifyAge, verifyTalk, verifyRat
   fs.writeFile('./src/talker.json', JSON.stringify(editedTalkers), 'utf-8');
 
   return res.status(HTTP_OK_STATUS).json(editedTalker);
+});
+
+app.delete('/talker/:id', verifyToken, async (req, res) => {
+  const { id } = req.params;
+
+  const talkers = await fs.readFile('./src/talker.json');
+  const talkersTreated = JSON.parse(talkers);
+  const talkerFound = talkersTreated.find((talker) => talker.id === Number(id));
+
+  talkersTreated.splice(talkersTreated.indexOf(talkerFound), 1);
+  fs.writeFile('./src/talker.json', JSON.stringify(talkersTreated), 'utf-8');
+
+  return res.status(204).end();
 })
 
 app.post('/login', verifyEmail, verifyPassword, async (req, res) => {
@@ -95,7 +108,7 @@ app.post('/login', verifyEmail, verifyPassword, async (req, res) => {
 
   res.status(HTTP_OK_STATUS).json({ token,  });
 
-})
+});
 
 // não remova esse endpoint, e para o avaliador funcionar
 app.get('/', (_request, response) => {
