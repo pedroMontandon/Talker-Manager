@@ -12,7 +12,15 @@ const filteringRate = (rate, filteredQTalkers) => {
   return filteredTalkers;
 };
 
+const filteringDate = (date, talkers) => {
+  if (!date) return talkers;
+  const filteredTalkers = talkers.filter((talker) => talker
+  .talk.watchedAt === date);
+  return filteredTalkers;
+};
+
 module.exports = {
     filteringQ,
     filteringRate,
+    filteringDate,
 };

@@ -8,8 +8,8 @@ const { verifyName, verifyAge, verifyTalk, verifyRate,
    verifyToken, verifyRateNumber } = require('./middlewares/verifyTalkerPost');
 const readFile = require('./helpers/readFile');
 const { postNewTalker } = require('./helpers/writeFile');
-const { filteringQ, filteringRate } = require('./helpers/filtering');
-const { verifyQueryRate } = require('./middlewares/queryMiddlewares');
+const { filteringQ, filteringRate, filteringDate } = require('./helpers/filtering');
+const { verifyQueryRate, verifyQueryDate } = require('./middlewares/queryMiddlewares');
 
 const app = express();
 app.use(express.json());
@@ -27,14 +27,15 @@ const PORT = process.env.PORT || '3001';
 //     return res.status(200).json(filteredTalkers);
 // });
 
-app.get('/talker/search', verifyToken, verifyQueryRate, async (req, res) => {
-  const { q, rate } = req.query;
+app.get('/talker/search', verifyToken, verifyQueryRate, verifyQueryDate, async (req, res) => {
+  const { q, rate, date } = req.query;
   const talkers = await readFile();
-
+  console.log(date);
   const filteredQTalkers = filteringQ(q, talkers);
   const filteredRate = filteringRate(rate, filteredQTalkers);
-  return res.status(200).json(filteredRate);
-    // return res.status(200).json(filteredTalkers);
+  const filteredDate = filteringDate(date, filteredRate);
+  // return res.status(200).json(filteredRate);
+  return res.status(200).json(filteredDate);
 });
 
 app.get('/talker', async (req, res) => {
@@ -94,12 +95,10 @@ app.put('/talker/:id', verifyToken, verifyName, verifyAge, verifyTalk,
 
 app.delete('/talker/:id', verifyToken, async (req, res) => {
   const { id } = req.params;
-
   const talkers = await readFile();
-  const talkerFound = talkers.find((talker) => talker.id === Number(id));
 
-  talkers.splice(talkers.indexOf(talkerFound), 1);
-  fs.writeFile('./src/talker.json', JSON.stringify(talkers), 'utf-8');
+  const filteredTalkers = talkers.filter((talker) => talker.id !== Number(id));
+  fs.writeFile('./src/talker.json', JSON.stringify(filteredTalkers), 'utf-8');
 
   return res.status(204).end();
 });
