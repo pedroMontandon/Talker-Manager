@@ -8,6 +8,8 @@ const { verifyName, verifyAge, verifyTalk, verifyRate,
    verifyToken, verifyRateNumber } = require('./middlewares/verifyTalkerPost');
 const readFile = require('./helpers/readFile');
 const { postNewTalker } = require('./helpers/writeFile');
+const { filteringQ, filteringRate } = require('./helpers/filtering');
+const { verifyQueryRate } = require('./middlewares/queryMiddlewares');
 
 const app = express();
 app.use(express.json());
@@ -15,13 +17,24 @@ app.use(express.json());
 const HTTP_OK_STATUS = 200;
 const PORT = process.env.PORT || '3001';
 
-app.get('/talker/search', verifyToken, async (req, res) => {
-  const { q } = req.query;
+// 8 funcionando perfeitamente
+// app.get('/talker/search', verifyToken, async (req, res) => {
+//   const { q } = req.query;
+//   const talkers = await readFile();
+
+//   const filteredTalkers = talkers.filter((talker) => talker
+//     .name.includes(q));
+//     return res.status(200).json(filteredTalkers);
+// });
+
+app.get('/talker/search', verifyToken, verifyQueryRate, async (req, res) => {
+  const { q, rate } = req.query;
   const talkers = await readFile();
 
-  const filteredTalkers = talkers.filter((talker) => talker
-    .name.toLowerCase().includes(q.toLowerCase()));
-    return res.status(200).json(filteredTalkers);
+  const filteredQTalkers = filteringQ(q, talkers);
+  const filteredRate = filteringRate(rate, filteredQTalkers);
+  return res.status(200).json(filteredRate);
+    // return res.status(200).json(filteredTalkers);
 });
 
 app.get('/talker', async (req, res) => {
