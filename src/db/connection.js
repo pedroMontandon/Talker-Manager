@@ -11,4 +11,6 @@ const connection = mysql.createPool({
    queueLimit: 0, 
 });
 
+// passa no local, mas não passa no github
+
 module.exports = connection;
