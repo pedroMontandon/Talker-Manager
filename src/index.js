@@ -1,6 +1,6 @@
 const express = require('express');
 const fs = require('fs').promises;
-
+const connection = require('./db/connection');
 const generateToken = require('./helpers/generateToken');
 const verifyEmail = require('./middlewares/verifyEmail');
 const verifyPassword = require('./middlewares/verifyPassword');
@@ -21,11 +21,27 @@ const PORT = process.env.PORT || '3001';
 app.get('/talker/search', verifyToken, verifyQueryRate, verifyQueryDate, async (req, res) => {
   const { q, rate, date } = req.query;
   const talkers = await readFile();
-  console.log(date);
   const filteredQTalkers = filteringQ(q, talkers);
   const filteredRate = filteringRate(rate, filteredQTalkers);
   const filteredDate = filteringDate(date, filteredRate);
   return res.status(200).json(filteredDate);
+});
+
+app.get('/talker/db', async (req, res) => {
+  const [result] = await connection.execute('SELECT * FROM talkers');
+  const treatedResult = result.reduce((acc, curr) => {
+    acc.push({
+      id: curr.id,
+      name: curr.name,
+      age: curr.age,
+      talk: {
+        rate: curr.talk_rate,
+        watchedAt: curr.talk_watched_at,
+      },
+    });
+    return acc;
+  }, []);
+  return res.status(200).json(treatedResult);
 });
 
 app.get('/talker', async (req, res) => {
