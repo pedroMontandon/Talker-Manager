@@ -124,7 +124,6 @@ app.patch('/talker/rate/:id', verifyToken, verifyPatchRate,
 
 app.post('/login', verifyEmail, verifyPassword, async (req, res) => {
   const token = generateToken(8);
-
   res.status(HTTP_OK_STATUS).json({ token });
 });
 
